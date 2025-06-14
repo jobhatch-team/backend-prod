@@ -7,8 +7,12 @@ from flask_login import LoginManager
 from .models import db, User
 from .api.user_routes import user_routes
 from .api.auth_routes import auth_routes
+from .api.google_auth import google_auth_routes
 from .seeds import seed_commands
 from .config import Config
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__,)
 
@@ -28,6 +32,7 @@ app.cli.add_command(seed_commands)
 app.config.from_object(Config)
 app.register_blueprint(user_routes, url_prefix='/api/users')
 app.register_blueprint(auth_routes, url_prefix='/api/auth')
+app.register_blueprint(google_auth_routes,url_prefix='/api/auth')
 db.init_app(app)
 Migrate(app, db)
 
