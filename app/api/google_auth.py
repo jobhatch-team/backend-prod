@@ -13,10 +13,10 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret")
 
 
-@google_auth_routes.route('/login-with-google', methods=['POST'])
+@google_auth_routes.route('/google', methods=['POST'])
 def login_with_google():
     data = request.get_json()
-    id_token_str = data.get('id_token')
+    id_token_str = data.get('idToken')
 
     if not id_token_str:
         return jsonify({'error': 'Missing id_token'}), 400
