@@ -8,6 +8,11 @@ from .models import db, User
 from .api.user_routes import user_routes
 from .api.auth_routes import auth_routes
 from .api.google_auth import google_auth_routes
+from .api.education_experience_routes import education_routes
+from .api.job_routes import job_routes
+from .api.profile_routes import profile_routes
+from .api.work_experience_routes import work_routes
+from .api.resume_upload_aws_routes import resume_routes
 from .seeds import seed_commands
 from .config import Config
 from dotenv import load_dotenv
@@ -33,6 +38,11 @@ app.config.from_object(Config)
 app.register_blueprint(user_routes, url_prefix='/api/users')
 app.register_blueprint(auth_routes, url_prefix='/api/auth')
 app.register_blueprint(google_auth_routes,url_prefix='/api/auth')
+app.register_blueprint(education_routes,url_prefix='/api/educations')
+app.register_blueprint(job_routes,url_prefix='/api/jobs')
+app.register_blueprint(profile_routes,url_prefix='/api/profile')
+app.register_blueprint(work_routes,url_prefix='/api/works')
+app.register_blueprint(resume_routes,url_prefix='/api/resumes')
 db.init_app(app)
 Migrate(app, db)
 

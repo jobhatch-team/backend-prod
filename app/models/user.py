@@ -31,6 +31,7 @@ class User(db.Model, UserMixin):
 
     jobs_posted = db.relationship("Job", back_populates="poster", cascade="all, delete-orphan")
     user_skills = db.relationship("UserSkill", back_populates="user", cascade="all, delete-orphan")
+    resumes = db.relationship("Resume", back_populates="user", cascade="all, delete-orphan")
     
     @property
     def password(self):

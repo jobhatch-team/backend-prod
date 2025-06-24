@@ -23,7 +23,6 @@ class Profile(db.Model):
     portfolio_url = db.Column(db.String)
     linkedin_url = db.Column(db.String)
     twitter_url = db.Column(db.String)
-    resume_url = db.Column(db.String)
 
     achievements = db.Column(db.Text)
     pronouns = db.Column(db.String)
@@ -48,7 +47,6 @@ class Profile(db.Model):
             'portfolio_url': self.portfolio_url,
             'linkedin_url': self.linkedin_url,
             'twitter_url': self.twitter_url,
-            'resume_url': self.resume_url,
             'achievements': self.achievements,
             'pronouns': self.pronouns,
             'gender': self.gender,

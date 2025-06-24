@@ -11,4 +11,7 @@ from .skill import Skill
 from .user_preference import UserPreference
 from .user_skill import UserSkill
 from .work_experience import WorkExperience
+from .resume import Resume
+from .resume_score import ResumeScore
+from .resume_job_match import ResumeJobMatch
 from .db import environment, SCHEMA

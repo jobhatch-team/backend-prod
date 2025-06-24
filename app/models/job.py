@@ -33,6 +33,8 @@ class Job(db.Model):
     poster = db.relationship("User", back_populates="jobs_posted")
 
     applications = db.relationship("Application", back_populates="job", cascade="all, delete-orphan")
+    resume_matches = db.relationship("ResumeJobMatch", back_populates="job", cascade="all, delete-orphan")
+
 
     def to_dict(self):
         return {
