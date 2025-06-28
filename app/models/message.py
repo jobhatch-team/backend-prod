@@ -13,6 +13,8 @@ class Message(db.Model):
     message_body = db.Column(db.Text, nullable=False)
     sent_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     read_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    is_recalled = db.Column(db.Boolean, nullable=False, server_default='0')
+    edited_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
     conversation = db.relationship("Conversation", back_populates="messages")
     sender = db.relationship("User", back_populates="messages_sent", foreign_keys=[sender_id])
@@ -22,7 +24,9 @@ class Message(db.Model):
             'id': self.id,
             'conversation_id': self.conversation_id,
             'sender_id': self.sender_id,
-            'message_body': self.message_body,
+            'message_body': self.message_body if not self.is_recalled else "This message has been recalled",
             'sent_at': self.sent_at,
-            'read_at': self.read_at
+            'read_at': self.read_at,
+            'is_recalled': self.is_recalled,
+            'edited_at': self.edited_at
         }

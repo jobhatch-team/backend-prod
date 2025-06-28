@@ -13,6 +13,12 @@ from .api.job_routes import job_routes
 from .api.profile_routes import profile_routes
 from .api.work_experience_routes import work_routes
 from .api.resume_upload_aws_routes import resume_routes
+from .api.ai_routes import ai_routes
+from .api.application_routes import application_routes
+from .api.company_routes import company_routes
+from .api.conversation_routes import conversation_routes
+from .api.message_routes import message_routes
+
 from .seeds import seed_commands
 from .config import Config
 from dotenv import load_dotenv
@@ -43,6 +49,11 @@ app.register_blueprint(job_routes,url_prefix='/api/jobs')
 app.register_blueprint(profile_routes,url_prefix='/api/profile')
 app.register_blueprint(work_routes,url_prefix='/api/works')
 app.register_blueprint(resume_routes,url_prefix='/api/resumes')
+app.register_blueprint(ai_routes,url_prefix='/api/ai')
+app.register_blueprint(company_routes,url_prefix='/api/companies')
+app.register_blueprint(application_routes,url_prefix='/api/applications')
+app.register_blueprint(message_routes,url_prefix='/api/messages')
+app.register_blueprint(conversation_routes, url_prefix='/api/conversations')
 db.init_app(app)
 Migrate(app, db)
 

@@ -58,4 +58,5 @@ class Job(db.Model):
             "posted_by": self.posted_by,
             "created_at": self.created_at,
             "status": self.status,
+            "company": self.company.to_dict() if self.company else None
         }
