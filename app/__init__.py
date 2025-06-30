@@ -18,6 +18,7 @@ from .api.application_routes import application_routes
 from .api.company_routes import company_routes
 from .api.conversation_routes import conversation_routes
 from .api.message_routes import message_routes
+from .api.onboarding_routes import onboarding
 
 from .seeds import seed_commands
 from .config import Config
@@ -54,6 +55,7 @@ app.register_blueprint(company_routes,url_prefix='/api/companies')
 app.register_blueprint(application_routes,url_prefix='/api/applications')
 app.register_blueprint(message_routes,url_prefix='/api/messages')
 app.register_blueprint(conversation_routes, url_prefix='/api/conversations')
+app.register_blueprint(onboarding, url_prefix='/api/onboarding')
 db.init_app(app)
 Migrate(app, db)
 

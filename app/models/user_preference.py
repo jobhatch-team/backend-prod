@@ -22,6 +22,11 @@ class UserPreference(db.Model):
     company_size_51_200 = db.Column(db.String)
     company_size_201_500 = db.Column(db.String)
     company_size_500_plus = db.Column(db.String)
+    
+    # Onboarding specific fields
+    willing_to_mentor = db.Column(db.Boolean, default=False)
+    founder_interests = db.Column(db.String)  # comma-separated: recruiting,fundraising
+    investor_interests = db.Column(db.String)  # comma-separated: find_startups,join_program
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
@@ -44,5 +49,8 @@ class UserPreference(db.Model):
             "company_size_51_200": self.company_size_51_200,
             "company_size_201_500": self.company_size_201_500,
             "company_size_500_plus": self.company_size_500_plus,
+            "willing_to_mentor": self.willing_to_mentor,
+            "founder_interests": self.founder_interests,
+            "investor_interests": self.investor_interests,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
