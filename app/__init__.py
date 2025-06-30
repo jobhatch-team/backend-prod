@@ -57,8 +57,12 @@ app.register_blueprint(conversation_routes, url_prefix='/api/conversations')
 db.init_app(app)
 Migrate(app, db)
 
-# Application Security
-CORS(app)
+# Application Security - Configure CORS for development
+CORS(app, 
+     origins=['http://localhost:5173', 'http://127.0.0.1:5173'], 
+     supports_credentials=True,
+     allow_headers=['Content-Type', 'Authorization'],
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
 
 
 # Since we are deploying with Docker and Flask,
@@ -81,9 +85,9 @@ def inject_csrf_token(response):
         'csrf_token',
         generate_csrf(),
         secure=True if os.environ.get('FLASK_ENV') == 'production' else False,
-        samesite='Strict' if os.environ.get(
+        samesite='Lax' if os.environ.get(
             'FLASK_ENV') == 'production' else None,
-        httponly=True)
+        httponly=False)  # Allow JavaScript access for development
     return response
 
 

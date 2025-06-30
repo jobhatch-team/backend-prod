@@ -11,7 +11,12 @@ import json
 
 ai_routes = Blueprint('ai', __name__)
 
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+# Initialize OpenAI client only when needed
+def get_openai_client():
+    api_key = os.getenv('OPENAI_API_KEY')
+    if not api_key or api_key == 'your-openai-api-key-here':
+        raise ValueError("OpenAI API key not configured")
+    return OpenAI(api_key=api_key)
 
 # Chat with AI (login required)
 @ai_routes.route('/chat', methods=['POST'])
@@ -24,6 +29,7 @@ def chat_with_ai():
         return jsonify({'error': 'Invalid or missing messages'}), 400
 
     try:
+        client = get_openai_client()
         response = client.chat.completions.create(
             model="gpt-4",
             messages=messages,
@@ -36,18 +42,25 @@ def chat_with_ai():
         return jsonify({'error': str(e)}), 500
     
 
-s3 = boto3.client(
-    's3',
-    aws_access_key_id=os.getenv('S3_KEY'),
-    aws_secret_access_key=os.getenv('S3_SECRET'),
-    region_name='us-east-1'
-)
+# Initialize S3 client only when needed
+def get_s3_client():
+    s3_key = os.getenv('S3_KEY')
+    s3_secret = os.getenv('S3_SECRET')
+    if not s3_key or not s3_secret:
+        raise ValueError("S3 credentials not configured")
+    return boto3.client(
+        's3',
+        aws_access_key_id=s3_key,
+        aws_secret_access_key=s3_secret,
+        region_name='us-east-1'
+    )
 
 def get_pdf_bytes_from_s3(s3_url):
     match = re.match(r"https://(.+)\.s3\.amazonaws\.com/(.+)", s3_url)
     if not match:
         return None
     bucket_name, key = match.groups()
+    s3 = get_s3_client()
     obj = s3.get_object(Bucket=bucket_name, Key=key)
     return obj['Body'].read()
 
@@ -92,6 +105,7 @@ Resume text:
 """
 
     try:
+        client = get_openai_client()
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
