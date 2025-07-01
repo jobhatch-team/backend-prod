@@ -75,21 +75,15 @@ def update_onboarding_preferences():
 def get_onboarding_status():
     """Get current user's onboarding status"""
     try:
-        print(f"Checking onboarding status for user {current_user.id}")  # Debug log
         user_preference = UserPreference.query.filter_by(user_id=current_user.id).first()
         
-        status_data = {
+        return jsonify({
             'user_type': current_user.role,
             'has_preferences': user_preference is not None,
             'onboarding_completed': current_user.role is not None and user_preference is not None
-        }
-        
-        print(f"Onboarding status: {status_data}")  # Debug log
-        
-        return jsonify(status_data), 200
+        }), 200
         
     except Exception as e:
-        print(f"Error in get_onboarding_status: {str(e)}")  # Debug log
         return jsonify({'error': str(e)}), 500
 
 @onboarding.route('/complete', methods=['POST'])
@@ -110,9 +104,4 @@ def complete_onboarding():
         }), 200
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@onboarding.route('/test', methods=['GET'])
-def test_onboarding_endpoint():
-    """Test endpoint to verify onboarding routes are working"""
-    return jsonify({'message': 'Onboarding API is working!', 'timestamp': str(db.func.now())}), 200 
+        return jsonify({'error': str(e)}), 500 

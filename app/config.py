@@ -10,8 +10,10 @@ class Config:
     # url in the hidden config vars to start with postgres.
     # so the connection uri must be updated here (for production)
     database_url = os.environ.get('DATABASE_URL')
-    if database_url:
+    if database_url and database_url.startswith('postgres://'):
         SQLALCHEMY_DATABASE_URI = database_url.replace('postgres://', 'postgresql://')
+    elif database_url:
+        SQLALCHEMY_DATABASE_URI = database_url
     else:
         SQLALCHEMY_DATABASE_URI = 'sqlite:///dev.db'  # Default to SQLite for development
     SQLALCHEMY_ECHO = True

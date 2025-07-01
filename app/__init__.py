@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, send_from_directory
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect, generate_csrf
@@ -47,7 +47,7 @@ app.register_blueprint(auth_routes, url_prefix='/api/auth')
 app.register_blueprint(google_auth_routes,url_prefix='/api/auth')
 app.register_blueprint(education_routes,url_prefix='/api/educations')
 app.register_blueprint(job_routes,url_prefix='/api/jobs')
-app.register_blueprint(profile_routes,url_prefix='/api/profile')
+app.register_blueprint(profile_routes,url_prefix='/api/profiles')
 app.register_blueprint(work_routes,url_prefix='/api/works')
 app.register_blueprint(resume_routes,url_prefix='/api/resumes')
 app.register_blueprint(ai_routes,url_prefix='/api/ai')
@@ -105,6 +105,12 @@ def api_help():
     return route_list
 
 
+# Route to serve uploaded files locally (fallback when AWS is not configured)
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """Serve uploaded files from local storage"""
+    upload_dir = os.path.join(os.getcwd(), 'uploads')
+    return send_from_directory(upload_dir, filename)
 
 
 @app.errorhandler(404)
