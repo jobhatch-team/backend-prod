@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
-from app.models import Resume, ResumeScore, db
+from app.models import Resume, ResumeScore, ResumeJobMatch, Job, db
 from openai import OpenAI
 import os
 
@@ -126,3 +126,107 @@ Resume text:
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+@ai_routes.route('/resumes/<int:resume_id>/jobs/<int:job_id>/match', methods=['POST'])
+@login_required
+def match_resume_to_job(resume_id, job_id):
+    """
+    Analyze the match between a resume and a job using AI,
+    save or update the match in the database, and return results.
+
+    Steps:
+    - Verify user owns the resume
+    - Fetch resume text (from S3 PDF)
+    - Fetch job info
+    - Call OpenAI to get match_score and match_summary
+    - Save or update ResumeJobMatch record
+    - Return JSON with match data
+    """
+    # Check resume ownership
+    resume = Resume.query.get(resume_id)
+    if not resume or resume.user_id != current_user.id:
+        return jsonify({"error": "Resume not found or permission denied"}), 404
+
+    # Get job record
+    job = Job.query.get(job_id)
+    if not job:
+        return jsonify({"error": "Job not found"}), 404
+
+    # Extract resume text from PDF in S3
+    pdf_bytes = get_pdf_bytes_from_s3(resume.file_url)
+    if not pdf_bytes:
+        return jsonify({"error": "Failed to download resume file"}), 500
+
+    resume_text = extract_text_from_pdf_bytes(pdf_bytes)
+    if not resume_text.strip() or len(resume_text.strip()) < 20:
+        return jsonify({"error": "Resume text too short or empty"}), 400
+
+    # Prepare prompt for AI
+    prompt = f"""
+You are a recruitment AI assistant. Given the resume text and the job description below,
+analyze the candidate's fit for the job. Return a JSON with:
+- match_score: a float from 0 to 1, indicating the suitability
+- match_summary: a brief summary highlighting strengths and weaknesses for this job.
+
+Job Title: {job.title}
+Job Description: {job.description}
+
+Resume Text:
+{resume_text[:3000]}
+
+Respond ONLY with a valid JSON object.
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a helpful AI recruitment assistant."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+        )
+
+        content = response.choices[0].message.content
+
+        # Remove markdown code block if present
+        if '```json' in content:
+            content = content.split('```json')[1].split('```')[0]
+        elif '```' in content:
+            content = content.split('```')[1]
+
+        ai_result = json.loads(content)
+
+        match_score = ai_result.get("match_score")
+        match_summary = ai_result.get("match_summary")
+
+        if match_score is None or match_summary is None:
+            return jsonify({"error": "AI response missing required fields"}), 500
+
+        # Check existing match
+        existing_match = ResumeJobMatch.query.filter_by(resume_id=resume_id, job_id=job_id).first()
+        if existing_match:
+            existing_match.match_score = match_score
+            existing_match.match_summary = match_summary
+        else:
+            new_match = ResumeJobMatch(
+                resume_id=resume_id,
+                job_id=job_id,
+                match_score=match_score,
+                match_summary=match_summary
+            )
+            db.session.add(new_match)
+
+        db.session.commit()
+
+        return jsonify({
+            "resume_id": resume_id,
+            "job_id": job_id,
+            "match_score": match_score,
+            "match_summary": match_summary
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"AI analysis failed: {str(e)}"}), 500

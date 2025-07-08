@@ -14,4 +14,7 @@ from .work_experience import WorkExperience
 from .resume import Resume
 from .resume_score import ResumeScore
 from .resume_job_match import ResumeJobMatch
+from .payment_record import PaymentRecord
+from .subscription_plan import SubscriptionPlan
+from .user_subscription import UserSubscription
 from .db import environment, SCHEMA
