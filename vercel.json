@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app/__init__.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app/__init__.py"
+    }
+  ],
+  "env": {
+    "FLASK_APP": "app",
+    "FLASK_ENV": "production"
+  },
+  "functions": {
+    "app/__init__.py": {
+      "maxDuration": 30
+    }
+  }
+} 
