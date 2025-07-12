@@ -14,6 +14,9 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
 allowed_origins = [
     'http://localhost:5173',  # Vite dev server
     'http://localhost:3000',  # React dev server
+    'https://backend-prod-dun.vercel.app',  # Vercel production domain
+    'https://frontend-prod-dun.vercel.app',  # Frontend production domain
+    'https://frontend-prod.vercel.app',  # Alternative frontend domain
 ]
 
 # Add production frontend domain if specified
@@ -368,19 +371,39 @@ def ai_general(subpath=None):
     })
 
 # === WAITLIST ENDPOINT ===
-@app.route("/api/waitlist", methods=['GET', 'POST'])
+@app.route("/api/waitlist", methods=['GET', 'POST', 'OPTIONS'])
 def waitlist():
     """Waitlist endpoint"""
-    if request.method == 'GET':
+    if request.method == 'OPTIONS':
+        # Handle CORS preflight request
+        response = jsonify({'message': 'OK'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+        return response
+    elif request.method == 'GET':
         return jsonify({
             "message": "Waitlist endpoint working",
-            "status": "ready for implementation"
+            "status": "ready for implementation",
+            "timestamp": "2024-01-11T12:00:00Z"
         })
     elif request.method == 'POST':
         return jsonify({
             "message": "Waitlist submission successful",
-            "status": "ready for implementation"
+            "status": "ready for implementation",
+            "timestamp": "2024-01-11T12:00:00Z"
         })
+
+# === DEPLOYMENT TEST ENDPOINT ===
+@app.route("/api/deployment-test", methods=['GET'])
+def deployment_test():
+    """Test endpoint to verify latest deployment"""
+    return jsonify({
+        "message": "Deployment test successful",
+        "timestamp": "2024-01-11T12:00:00Z",
+        "version": "2.1",
+        "status": "latest deployment active"
+    })
 
 @app.route("/api/docs")
 def api_help():

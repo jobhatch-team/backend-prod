@@ -18,7 +18,7 @@
         const idToken = response.credential;
         console.log("ID Token:", idToken);
 
-        fetch('http://localhost:8000/api/auth/login-with-google', {
+        fetch('https://backend-prod-dun.vercel.app/api/auth/login-with-google', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
