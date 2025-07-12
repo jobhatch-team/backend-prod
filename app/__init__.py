@@ -76,15 +76,19 @@ allowed_origins = [
 if os.environ.get('FRONTEND_URL'):
     allowed_origins.append(os.environ.get('FRONTEND_URL'))
 
-# Add common Vercel deployment patterns
-# You should replace these with your actual domains once deployed
-vercel_domains = [
-    'https://jobhatch-frontend.vercel.app',
-    'https://jobhatch-prod.vercel.app',
-    'https://frontend-prod.vercel.app'
-]
+# Add additional production domains from environment
+if os.environ.get('ALLOWED_ORIGINS'):
+    additional_origins = os.environ.get('ALLOWED_ORIGINS').split(',')
+    allowed_origins.extend([origin.strip() for origin in additional_origins])
 
-if os.environ.get('FLASK_ENV') == 'production':
+# Add common Vercel deployment patterns only if no specific domains are set
+if os.environ.get('FLASK_ENV') == 'production' and not os.environ.get('ALLOWED_ORIGINS'):
+    # Default fallback domains - replace with your actual domains
+    vercel_domains = [
+        'https://jobhatch-frontend.vercel.app',
+        'https://jobhatch-prod.vercel.app',
+        'https://frontend-prod.vercel.app'
+    ]
     allowed_origins.extend(vercel_domains)
 
 CORS(app, supports_credentials=True, origins=allowed_origins)

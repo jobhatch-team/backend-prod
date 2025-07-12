@@ -46,7 +46,4 @@ certifi==2025.4.26
 charset-normalizer==3.4.2
 idna==3.10
 six==1.16.0
-typing_extensions==4.14.0
-
-# Production server (optional for Vercel)
-gunicorn==20.1.0
+typing_extensions==4.14.0 
