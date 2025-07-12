@@ -126,6 +126,30 @@ def inject_csrf_token(response):
     return response
 
 
+@app.route("/")
+def health_check():
+    """
+    Health check endpoint for Vercel deployment
+    """
+    return {
+        "status": "healthy",
+        "message": "JobHatch API is running",
+        "environment": os.environ.get('FLASK_ENV', 'development')
+    }
+
+
+@app.route("/api/health")
+def api_health():
+    """
+    API health check endpoint
+    """
+    return {
+        "status": "healthy",
+        "message": "JobHatch API is running",
+        "environment": os.environ.get('FLASK_ENV', 'development')
+    }
+
+
 @app.route("/api/docs")
 def api_help():
     """
