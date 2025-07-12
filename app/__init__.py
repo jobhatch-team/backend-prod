@@ -14,9 +14,10 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
 allowed_origins = [
     'http://localhost:5173',  # Vite dev server
     'http://localhost:3000',  # React dev server
-    'https://backend-prod-dun.vercel.app',  # Vercel production domain
-    'https://frontend-prod-dun.vercel.app',  # Frontend production domain
+    'https://backend-prod-team-jobhatchs-projects.vercel.app',  # Backend domain
+    'https://frontend-prod-team-jobhatchs-projects.vercel.app',  # Frontend team domain
     'https://frontend-prod.vercel.app',  # Alternative frontend domain
+    'https://frontend-prod-dun.vercel.app',  # Legacy frontend domain
 ]
 
 # Add production frontend domain if specified
