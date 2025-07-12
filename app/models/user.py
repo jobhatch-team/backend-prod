@@ -32,6 +32,7 @@ class User(db.Model, UserMixin):
     jobs_posted = db.relationship("Job", back_populates="poster", cascade="all, delete-orphan")
     user_skills = db.relationship("UserSkill", back_populates="user", cascade="all, delete-orphan")
     resumes = db.relationship("Resume", back_populates="user", cascade="all, delete-orphan")
+    cover_letters = db.relationship("CoverLetter", back_populates="user", cascade="all, delete-orphan")
 
     subscription = db.relationship("UserSubscription", back_populates="user", uselist=False, cascade="all, delete-orphan")
     payment_records = db.relationship("PaymentRecord", back_populates="user", cascade="all, delete-orphan")
