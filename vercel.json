@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "app/__init__.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "app/__init__.py"
+      "dest": "api/index.py"
     }
   ],
   "env": {
@@ -17,7 +17,7 @@
     "FLASK_ENV": "production"
   },
   "functions": {
-    "app/__init__.py": {
+    "api/index.py": {
       "maxDuration": 30
     }
   }

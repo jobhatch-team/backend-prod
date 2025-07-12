@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, send_from_directory
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect, generate_csrf
@@ -19,6 +19,7 @@ from .api.company_routes import company_routes
 from .api.conversation_routes import conversation_routes
 from .api.message_routes import message_routes
 from .api.subscription_plans_routes import subscriptions_plans_routes
+from .api.onboarding_routes import onboarding
 # from .api.user_subscriptions_routes import user_subscriptions_routes
 
 from .seeds import seed_commands
@@ -57,6 +58,7 @@ app.register_blueprint(application_routes,url_prefix='/api/applications')
 app.register_blueprint(message_routes,url_prefix='/api/messages')
 app.register_blueprint(conversation_routes, url_prefix='/api/conversations')
 app.register_blueprint(subscriptions_plans_routes,url_prefix='/api/plans')
+app.register_blueprint(onboarding, url_prefix='/api/onboarding')
 # app.register_blueprint(user_subscriptions_routes,url_prefix='/api/user-plans')
 
 
@@ -64,8 +66,35 @@ db.init_app(app)
 Migrate(app, db)
 
 # Application Security
-CORS(app)
+# Configure CORS for both development and production
+allowed_origins = [
+    'http://localhost:5173',  # Vite dev server
+    'http://localhost:3000',  # React dev server
+]
 
+# Add production frontend domain if specified
+if os.environ.get('FRONTEND_URL'):
+    allowed_origins.append(os.environ.get('FRONTEND_URL'))
+
+# Add common Vercel deployment patterns
+# You should replace these with your actual domains once deployed
+vercel_domains = [
+    'https://jobhatch-frontend.vercel.app',
+    'https://jobhatch-prod.vercel.app',
+    'https://frontend-prod.vercel.app'
+]
+
+if os.environ.get('FLASK_ENV') == 'production':
+    allowed_origins.extend(vercel_domains)
+
+CORS(app, supports_credentials=True, origins=allowed_origins)
+
+# Serve local uploads when AWS is not configured
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """Serve uploaded files from local storage"""
+    upload_folder = os.path.join(os.getcwd(), 'uploads')
+    return send_from_directory(upload_folder, filename)
 
 # Since we are deploying with Docker and Flask,
 # we won't be using a buildpack when we deploy to Heroku.
@@ -103,8 +132,6 @@ def api_help():
                     app.view_functions[rule.endpoint].__doc__ ]
                     for rule in app.url_map.iter_rules() if rule.endpoint != 'static' }
     return route_list
-
-
 
 
 @app.errorhandler(404)

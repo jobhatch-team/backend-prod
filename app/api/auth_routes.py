@@ -21,8 +21,15 @@ def authenticate():
     """
     Authenticates a user.
     """
+    print(f"Authentication check - current_user.is_authenticated: {current_user.is_authenticated}")
+    print(f"Authentication check - current_user: {current_user}")
+    
     if current_user.is_authenticated:
-        return current_user.to_dict()
+        user_dict = current_user.to_dict()
+        print(f"User authenticated: {user_dict.get('email', 'no email')}")
+        return user_dict
+    
+    print("User not authenticated")
     return {'errors': {'message': 'Unauthorized'}}, 401
 
 
@@ -39,7 +46,9 @@ def login():
         # Add the user to the session, we are logged in!
         user = User.query.filter(User.email == form.data['email']).first()
         login_user(user)
+        print(f"User logged in: {user.email}")
         return user.to_dict()
+    print(f"Login failed: {form.errors}")
     return form.errors, 401
 
 
@@ -68,7 +77,9 @@ def sign_up():
         db.session.add(user)
         db.session.commit()
         login_user(user)
+        print(f"New user signed up and logged in: {user.email}")
         return user.to_dict()
+    print(f"Signup failed: {form.errors}")
     return form.errors, 401
 
 
@@ -77,4 +88,5 @@ def unauthorized():
     """
     Returns unauthorized JSON when flask-login authentication fails
     """
+    print("Unauthorized access attempt")
     return {'errors': {'message': 'Unauthorized'}}, 401
