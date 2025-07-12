@@ -68,9 +68,102 @@ def api_test():
         "cors_origins": allowed_origins
     })
 
+# Essential API endpoints that frontend expects
+@app.route("/api/resumes", methods=['GET', 'POST'])
+def resumes():
+    """Resume management endpoint"""
+    if request.method == 'GET':
+        return jsonify({
+            "message": "Resume endpoint working",
+            "resumes": [],
+            "status": "ready for implementation"
+        })
+    elif request.method == 'POST':
+        return jsonify({
+            "message": "Resume upload endpoint working",
+            "status": "ready for implementation"
+        })
+
+@app.route("/api/cover_letters", methods=['GET', 'POST'])
+def cover_letters():
+    """Cover letter management endpoint"""
+    if request.method == 'GET':
+        return jsonify({
+            "message": "Cover letter endpoint working",
+            "cover_letters": [],
+            "status": "ready for implementation"
+        })
+    elif request.method == 'POST':
+        return jsonify({
+            "message": "Cover letter creation endpoint working",
+            "status": "ready for implementation"
+        })
+
+@app.route("/api/onboarding", methods=['GET', 'POST'])
+def onboarding():
+    """Onboarding endpoint"""
+    if request.method == 'GET':
+        return jsonify({
+            "message": "Onboarding endpoint working",
+            "status": "ready for implementation"
+        })
+    elif request.method == 'POST':
+        return jsonify({
+            "message": "Onboarding submission endpoint working",
+            "status": "ready for implementation"
+        })
+
+@app.route("/api/auth", methods=['GET', 'POST'])
+@app.route("/api/auth/<path:subpath>", methods=['GET', 'POST'])
+def auth(subpath=None):
+    """Authentication endpoint"""
+    return jsonify({
+        "message": "Auth endpoint working",
+        "subpath": subpath,
+        "method": request.method,
+        "status": "ready for implementation"
+    })
+
+@app.route("/api/profiles", methods=['GET', 'POST', 'PUT'])
+@app.route("/api/profile", methods=['GET', 'POST', 'PUT'])
+def profiles():
+    """Profile management endpoint"""
+    return jsonify({
+        "message": "Profile endpoint working",
+        "method": request.method,
+        "status": "ready for implementation"
+    })
+
+@app.route("/api/ai_resume", methods=['POST'])
+def ai_resume():
+    """AI resume generation endpoint"""
+    return jsonify({
+        "message": "AI resume endpoint working",
+        "status": "ready for implementation"
+    })
+
+@app.route("/api/ai_cover_letter", methods=['POST'])
+def ai_cover_letter():
+    """AI cover letter generation endpoint"""
+    return jsonify({
+        "message": "AI cover letter endpoint working",
+        "status": "ready for implementation"
+    })
+
+@app.route("/api/ai", methods=['GET', 'POST'])
+@app.route("/api/ai/<path:subpath>", methods=['GET', 'POST'])
+def ai_general(subpath=None):
+    """General AI endpoint"""
+    return jsonify({
+        "message": "AI endpoint working",
+        "subpath": subpath,
+        "method": request.method,
+        "status": "ready for implementation"
+    })
+
 @app.route("/api/docs")
 def api_help():
-    """Returns basic API information"""
+    """Returns API information and available endpoints"""
     return jsonify({
         "message": "JobHatch API - Working Version",
         "version": "2.0",
@@ -79,6 +172,14 @@ def api_help():
             {"path": "/", "method": "GET", "description": "Health check"},
             {"path": "/api/health", "method": "GET", "description": "API health check"},
             {"path": "/api/test", "method": "GET", "description": "Test endpoint"},
+            {"path": "/api/resumes", "methods": ["GET", "POST"], "description": "Resume management"},
+            {"path": "/api/cover_letters", "methods": ["GET", "POST"], "description": "Cover letter management"},
+            {"path": "/api/onboarding", "methods": ["GET", "POST"], "description": "User onboarding"},
+            {"path": "/api/auth", "methods": ["GET", "POST"], "description": "Authentication"},
+            {"path": "/api/profiles", "methods": ["GET", "POST", "PUT"], "description": "Profile management"},
+            {"path": "/api/ai_resume", "methods": ["POST"], "description": "AI resume generation"},
+            {"path": "/api/ai_cover_letter", "methods": ["POST"], "description": "AI cover letter generation"},
+            {"path": "/api/ai", "methods": ["GET", "POST"], "description": "General AI endpoints"},
             {"path": "/api/docs", "method": "GET", "description": "API documentation"}
         ]
     })
