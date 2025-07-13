@@ -1,4 +1,4 @@
-from .db import db, environment, SCHEMA
+from .db import db, environment, SCHEMA,add_prefix_for_prod
 from sqlalchemy.sql import func
 
 class Job(db.Model):
@@ -23,8 +23,8 @@ class Job(db.Model):
     equity_min = db.Column(db.Float)
     equity_max = db.Column(db.Float)
     job_type = db.Column(db.String(50))
-    company_id = db.Column(db.Integer, db.ForeignKey(f"{SCHEMA}.companies.id" if environment == "production" else "companies.id"))
-    posted_by = db.Column(db.Integer, db.ForeignKey(f"{SCHEMA}.users.id" if environment == "production" else "users.id"))
+    company_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('companies.id')), nullable=True)
+    posted_by = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('users.id')), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     status = db.Column(db.String(50), default='open')
 
