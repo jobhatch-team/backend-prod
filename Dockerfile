@@ -42,4 +42,4 @@ COPY . .
 ENV FLASK_APP=app
 ENV FLASK_ENV=production
 
-CMD flask db upgrade && flask seed all && gunicorn app:app --bind 0.0.0.0:8000
+CMD flask db upgrade && gunicorn app:app --bind 0.0.0.0:8000
