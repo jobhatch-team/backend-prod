@@ -1,8 +1,8 @@
-"""test 0616
+"""initial setup
 
-Revision ID: c930d5d4bd8e
+Revision ID: c44ab7ccd34c
 Revises: 
-Create Date: 2025-06-16 15:50:14.689659
+Create Date: 2025-07-12 18:52:57.294051
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c930d5d4bd8e'
+revision = 'c44ab7ccd34c'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -36,6 +36,19 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )
+    op.create_table('subscription_plans',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=100), nullable=False),
+    sa.Column('tagline', sa.String(length=255), nullable=True),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('price', sa.Float(), nullable=False),
+    sa.Column('billing_cycle', sa.String(length=50), nullable=False),
+    sa.Column('for_role', sa.String(length=50), nullable=True),
+    sa.Column('feature_flags', sa.Text(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
+    )
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(length=40), nullable=True),
@@ -53,8 +66,20 @@ def upgrade():
     sa.Column('user_1_id', sa.Integer(), nullable=False),
     sa.Column('user_2_id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('deleted_by_user_1', sa.Boolean(), server_default='0', nullable=False),
+    sa.Column('deleted_by_user_2', sa.Boolean(), server_default='0', nullable=False),
     sa.ForeignKeyConstraint(['user_1_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['user_2_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('cover_letters',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('file_url', sa.String(length=255), nullable=False),
+    sa.Column('title', sa.String(length=255), nullable=True),
+    sa.Column('extracted_text', sa.Text(), nullable=True),
+    sa.Column('uploaded_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('education_experiences',
@@ -107,7 +132,6 @@ def upgrade():
     sa.Column('portfolio_url', sa.String(), nullable=True),
     sa.Column('linkedin_url', sa.String(), nullable=True),
     sa.Column('twitter_url', sa.String(), nullable=True),
-    sa.Column('resume_url', sa.String(), nullable=True),
     sa.Column('achievements', sa.Text(), nullable=True),
     sa.Column('pronouns', sa.String(), nullable=True),
     sa.Column('gender', sa.String(), nullable=True),
@@ -116,6 +140,16 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id')
+    )
+    op.create_table('resumes',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('file_url', sa.String(length=255), nullable=False),
+    sa.Column('title', sa.String(length=255), nullable=True),
+    sa.Column('extracted_text', sa.Text(), nullable=True),
+    sa.Column('uploaded_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('user_preferences',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -133,6 +167,9 @@ def upgrade():
     sa.Column('company_size_51_200', sa.String(), nullable=True),
     sa.Column('company_size_201_500', sa.String(), nullable=True),
     sa.Column('company_size_500_plus', sa.String(), nullable=True),
+    sa.Column('willing_to_mentor', sa.Boolean(), nullable=True),
+    sa.Column('founder_interests', sa.String(), nullable=True),
+    sa.Column('investor_interests', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
@@ -146,6 +183,21 @@ def upgrade():
     sa.ForeignKeyConstraint(['skill_id'], ['skills.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('user_id', 'skill_id')
+    )
+    op.create_table('user_subscriptions',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('plan_id', sa.Integer(), nullable=False),
+    sa.Column('start_date', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('end_date', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('trial_end_date', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('is_active', sa.Boolean(), server_default='1', nullable=False),
+    sa.Column('auto_renew', sa.Boolean(), server_default='1', nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.ForeignKeyConstraint(['plan_id'], ['subscription_plans.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id')
     )
     op.create_table('work_experiences',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -177,8 +229,50 @@ def upgrade():
     sa.Column('message_body', sa.Text(), nullable=False),
     sa.Column('sent_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.Column('read_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('is_recalled', sa.Boolean(), server_default='0', nullable=False),
+    sa.Column('edited_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['conversation_id'], ['conversations.id'], ),
     sa.ForeignKeyConstraint(['sender_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('payment_records',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('subscription_id', sa.Integer(), nullable=False),
+    sa.Column('amount', sa.Float(), nullable=False),
+    sa.Column('currency', sa.String(length=10), server_default='USD', nullable=True),
+    sa.Column('payment_method', sa.String(length=50), nullable=True),
+    sa.Column('payment_date', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('status', sa.String(length=50), server_default='completed', nullable=True),
+    sa.Column('transaction_id', sa.String(length=255), nullable=True),
+    sa.ForeignKeyConstraint(['subscription_id'], ['user_subscriptions.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('resume_job_matches',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('resume_id', sa.Integer(), nullable=False),
+    sa.Column('job_id', sa.Integer(), nullable=False),
+    sa.Column('match_score', sa.Float(), nullable=True),
+    sa.Column('match_summary', sa.Text(), nullable=True),
+    sa.Column('matched_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.ForeignKeyConstraint(['job_id'], ['jobs.id'], ),
+    sa.ForeignKeyConstraint(['resume_id'], ['resumes.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('resume_scores',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('resume_id', sa.Integer(), nullable=False),
+    sa.Column('ai_model', sa.String(length=100), nullable=True),
+    sa.Column('score_overall', sa.Float(), nullable=True),
+    sa.Column('score_format', sa.Float(), nullable=True),
+    sa.Column('score_skills', sa.Float(), nullable=True),
+    sa.Column('score_experience', sa.Float(), nullable=True),
+    sa.Column('strengths', sa.Text(), nullable=True),
+    sa.Column('weaknesses', sa.Text(), nullable=True),
+    sa.Column('suggestions', sa.Text(), nullable=True),
+    sa.Column('evaluated_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.ForeignKeyConstraint(['resume_id'], ['resumes.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
@@ -186,16 +280,23 @@ def upgrade():
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_table('resume_scores')
+    op.drop_table('resume_job_matches')
+    op.drop_table('payment_records')
     op.drop_table('messages')
     op.drop_table('applications')
     op.drop_table('work_experiences')
+    op.drop_table('user_subscriptions')
     op.drop_table('user_skills')
     op.drop_table('user_preferences')
+    op.drop_table('resumes')
     op.drop_table('profiles')
     op.drop_table('jobs')
     op.drop_table('education_experiences')
+    op.drop_table('cover_letters')
     op.drop_table('conversations')
     op.drop_table('users')
+    op.drop_table('subscription_plans')
     op.drop_table('skills')
     op.drop_table('companies')
     # ### end Alembic commands ###
