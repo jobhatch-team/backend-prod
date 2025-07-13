@@ -63,3 +63,4 @@ urllib3==1.26.20
 Werkzeug==2.2.2
 WTForms==3.0.1
 zipp==3.17.0
+psycopg2-binary
